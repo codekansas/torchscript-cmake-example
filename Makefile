@@ -6,4 +6,4 @@ develop:
 test:
 	python test.py
 
-.PHONY: all
+.PHONY: develop test
