@@ -6,3 +6,6 @@ build/
 *.py[co]
 __pycache__/
 *.egg-info/
+
+# IDE files
+.vscode/

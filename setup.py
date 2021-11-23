@@ -24,12 +24,13 @@ class CMakeExtension(Extension):
 
 class CMakeBuild(build_ext):
     def run(self) -> None:
-        if not shutil.which("cmake") or torch.utils.cmake_prefix_path is None:
-            raise RuntimeError(f"CMake prefix path not found")
+        if not shutil.which("cmake"):
+            raise RuntimeError("CMake installation not found")
+        if torch.utils.cmake_prefix_path is None:
+            raise RuntimeError("CMake prefix path not found")
 
         # Sets paths to various CMake stuff.
-        cmake_prefix_paths = [torch.utils.cmake_prefix_path]
-        self.cmake_prefix_path = ";".join(cmake_prefix_paths)
+        self.cmake_prefix_path = torch.utils.cmake_prefix_path
         self.python_path = shutil.which("python")
 
         for ext in self.extensions:
@@ -37,27 +38,16 @@ class CMakeBuild(build_ext):
             self.build_cmake(ext)
 
     def build_cmake(self, ext: CMakeExtension) -> None:
+        assert platform.system() == "Linux", f"Not supported: {platform.system()=}"
         output_path = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
+        config = "Debug" if self.debug else "Release"
 
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={output_path}",
             f"-DCMAKE_PREFIX_PATH={self.cmake_prefix_path}",
             f"-DPYTHON_EXECUTABLE:FILEPATH={self.python_path}",
+            f"-DCMAKE_BUILD_TYPE={config}",
         ]
-
-        config = "Debug" if self.debug else "Release"
-        build_args = ["--config", config]
-
-        if platform.system() == "Darwin":
-            cmake_args += ["-DCMAKE_OSX_DEPLOYMENT_TARGET=10.9"]
-
-        if platform.system() == "Windows":
-            cmake_args += [f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{config.upper()}={output_path}"]
-            if sys.maxsize > 2 ** 32:
-                cmake_args += ["-A", "x64"]
-            build_args += ["--", "/m"]
-        else:
-            cmake_args += [f"-DCMAKE_BUILD_TYPE={config}"]
 
         env = os.environ.copy()
 
@@ -65,7 +55,10 @@ class CMakeBuild(build_ext):
         build_temp = os.path.abspath(self.build_temp)
         if not os.path.exists(build_temp):
             os.makedirs(build_temp)
-        subprocess.check_call(["cmake", f"-S{ext.source_path}", f"-B{build_temp}"] + cmake_args, env=env)
+        subprocess.check_call(
+            ["cmake", f"-S{ext.source_path}", f"-B{build_temp}"] + cmake_args,
+            env=env,
+        )
 
         # Compiles the project.
         build_lib = os.path.abspath(self.build_lib)
