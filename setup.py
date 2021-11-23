@@ -5,7 +5,9 @@ import os
 import platform
 import shutil
 import subprocess
+from typing import List
 
+import torch._C
 import torch.utils
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
@@ -25,8 +27,16 @@ class CMakeBuild(build_ext):
         if torch.utils.cmake_prefix_path is None:
             raise RuntimeError("CMake prefix path not found")
 
+        # Need to copy PyBind flags.
+        cmake_cxx_flags: List[str] = []
+        for name in ["COMPILER_TYPE", "STDLIB", "BUILD_ABI"]:
+            val = getattr(torch._C, f"_PYBIND11_{name}")
+            if val is not None:
+                cmake_cxx_flags += [f'-DPYBIND11_{name}=\\"{val}\\"']
+
         # Sets paths to various CMake stuff.
         self.cmake_prefix_path = torch.utils.cmake_prefix_path
+        self.cmake_cxx_flags = " ".join(cmake_cxx_flags)
         self.python_path = shutil.which("python")
 
         for ext in self.extensions:
@@ -43,6 +53,7 @@ class CMakeBuild(build_ext):
             f"-DCMAKE_PREFIX_PATH={self.cmake_prefix_path}",
             f"-DPYTHON_EXECUTABLE:FILEPATH={self.python_path}",
             f"-DCMAKE_BUILD_TYPE={config}",
+            f"-DCMAKE_CXX_FLAGS='{self.cmake_cxx_flags}'",
         ]
 
         env = os.environ.copy()

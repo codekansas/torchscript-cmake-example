@@ -1,4 +1,5 @@
 import torch
+import torch.utils.cpp_extension
 from torch import Tensor, nn
 
 import libcpp
@@ -15,6 +16,9 @@ def main() -> None:
 
     ident_tensor = libcpp.tensor_identity(tensor)  # This passes
     ident_module = libcpp.module_identity(module._c)  # This fails
+
+    print("ident tensor:", ident_tensor)
+    print("ident module:", ident_module)
 
 
 if __name__ == "__main__":
