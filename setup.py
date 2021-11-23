@@ -5,12 +5,8 @@ import os
 import platform
 import shutil
 import subprocess
-import sys
 
-import torch._C
-import torch.cuda
 import torch.utils
-import torch.utils.cpp_extension
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
