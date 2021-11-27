@@ -12,8 +12,6 @@ find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 find_package(PythonLibs REQUIRED)
 
-set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
-
 find_library(TORCH_PYTHON_LIBRARY torch_python
              PATHS "${TORCH_INSTALL_PREFIX}/lib")
 
