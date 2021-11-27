@@ -5,7 +5,7 @@ project(example-cpp-backend LANGUAGES CXX C)
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(LIB_NAME cpp)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTORCH_EXTENSION_NAME=lib${LIB_NAME}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTORCH_EXTENSION_NAME=${LIB_NAME}")
 set(CMAKE_CXX_STANDARD 14)
 
 find_package(Torch REQUIRED)
@@ -18,6 +18,7 @@ find_library(TORCH_PYTHON_LIBRARY torch_python
 add_library(${LIB_NAME} SHARED example.cpp)
 
 set_target_properties(${LIB_NAME} PROPERTIES OUTPUT_NAME ${LIB_NAME})
+set_target_properties(${LIB_NAME} PROPERTIES PREFIX "")
 target_include_directories(
   ${LIB_NAME}
   PUBLIC ${TORCH_INCLUDE_DIRS}
