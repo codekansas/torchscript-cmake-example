@@ -2,7 +2,6 @@
 
 import multiprocessing
 import os
-import platform
 import shutil
 import subprocess
 from typing import List
@@ -44,7 +43,6 @@ class CMakeBuild(build_ext):
             self.build_cmake(ext)
 
     def build_cmake(self, ext: CMakeExtension) -> None:
-        assert platform.system() == "Linux", f"Not supported: {platform.system()=}"
         output_path = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
         config = "Debug" if self.debug else "Release"
 

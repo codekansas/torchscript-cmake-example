@@ -1,5 +1,7 @@
 SHELL=/bin/bash
 
+all: develop test
+
 clean:
 	rm -r build *.so *.egg-info
 
@@ -8,7 +10,5 @@ develop:
 
 test:
 	python test.py
-
-all: clean develop test
 
 .PHONY: clean develop test
