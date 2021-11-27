@@ -12,13 +12,10 @@ find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 find_package(PythonLibs REQUIRED)
 
-link_directories(${PYTHON_LIBRARIES})
+link_directories(${PYTHON_LIBRARIES} ${TORCH_INSTALL_PREFIX}/lib)
 if(DEFINED ENV{CONDA_PREFIX})
   link_directories($ENV{CONDA_PREFIX}/lib)
 endif()
-
-set(TORCH_LIB_DIR "${TORCH_INSTALL_PREFIX}/lib")
-find_library(TORCH_PYTHON_LIBRARY torch_python PATHS ${TORCH_LIB_DIR})
 
 add_library(${LIB_NAME} SHARED example.cpp)
 
@@ -37,7 +34,4 @@ target_include_directories(
   ${LIB_NAME}
   PUBLIC ${TORCH_INCLUDE_DIRS}
   PUBLIC ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(
-  ${LIB_NAME}
-  PUBLIC ${TORCH_LIBRARIES}
-  PUBLIC ${TORCH_PYTHON_LIBRARY})
+target_link_libraries(${LIB_NAME} PUBLIC ${TORCH_LIBRARIES})
